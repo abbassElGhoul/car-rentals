@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/car_rentals
+    username: root
+    password: 7363
+  jpa:
+    show-sql: true
+
+photos:
+  path:
+    ids: C:\Users\Admin\Desktop\carRentingImages\ids
+    cars: C:\Users\Admin\Desktop\carRentingImages\carImages
+    insurance: C:\Users\Admin\Desktop\carRentingImages\insurance
+  size: 10MB
+
+encryption:
+  secret:
+    key: MySecretKey12345
