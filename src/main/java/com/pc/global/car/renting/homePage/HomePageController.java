@@ -3,6 +3,7 @@ package com.pc.global.car.renting.homePage;
 import com.pc.global.car.renting.customeResponse.Response;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("api/v1/home-page")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class HomePageController
 {
     private final HomePageService homePageService;

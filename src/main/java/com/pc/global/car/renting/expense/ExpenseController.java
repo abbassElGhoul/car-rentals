@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/expenses")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 public class ExpenseController
 {
     private final ExpenseService expenseService;

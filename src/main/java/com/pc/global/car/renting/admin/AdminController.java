@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/admin")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @Log4j2
 public class AdminController
 {

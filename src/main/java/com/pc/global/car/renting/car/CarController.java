@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/v1/car")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*")
 @Log4j2
 public class CarController
 {

@@ -6,6 +6,9 @@ spring:
     password: 7363
   jpa:
     show-sql: true
+  output:
+    ansi:
+      enabled: always
 
 photos:
   path:
