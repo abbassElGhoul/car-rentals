@@ -6,6 +6,11 @@ spring:
     password: 7363
   jpa:
     show-sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 photos:
   path:
@@ -17,3 +22,8 @@ photos:
 encryption:
   secret:
     key: MySecretKey12345
+
+rabbitmq:
+  queue: message
+  exchange: exchange
+  routingkey: routingkey
