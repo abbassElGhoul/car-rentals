@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 @Service
 public interface CarRentalsService
 {
-    Response rentCat(RentCarDto rentCarDto);
+    Response rentCar(RentCarDto rentCarDto);
     Response getCarsByClientId(String clientId);
+
+    Response getCarDetails(String carId);
 
 }

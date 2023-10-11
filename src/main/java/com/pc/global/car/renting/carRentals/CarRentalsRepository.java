@@ -12,4 +12,6 @@ public interface CarRentalsRepository extends JpaRepository<CarRentalsEntity, Lo
 {
     @Query(value = "select * from car_rentals where client_id = :clientId limit 1", nativeQuery = true)
     Optional<CarRentalsEntity> findByClientId(String clientId);
+
+    List<CarRentalsEntity> findByCarId(String carId);
 }

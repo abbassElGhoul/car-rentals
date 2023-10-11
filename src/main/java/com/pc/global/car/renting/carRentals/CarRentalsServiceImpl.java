@@ -1,15 +1,22 @@
 package com.pc.global.car.renting.carRentals;
 
 import com.pc.global.car.renting.car.CarService;
+import com.pc.global.car.renting.carRentals.dto.CarDetailsDto;
 import com.pc.global.car.renting.carRentals.dto.RentCarDto;
+import com.pc.global.car.renting.client.ClientEntity;
+import com.pc.global.car.renting.client.ClientRepository;
 import com.pc.global.car.renting.customeResponse.Response;
+import com.pc.global.car.renting.sponser.SponsorEntity;
+import com.pc.global.car.renting.sponser.SponsorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,8 +27,10 @@ public class CarRentalsServiceImpl implements CarRentalsService
 {
     private final CarRentalsRepository carRentalsRepository;
     private final CarService carService;
+    private final ClientRepository clientRepository;
+    private final SponsorRepository sponsorRepository;
 
-    public Response rentCat(RentCarDto rentCarDto)
+    public Response rentCar(RentCarDto rentCarDto)
     {
         try
         {
@@ -74,4 +83,43 @@ public class CarRentalsServiceImpl implements CarRentalsService
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "error occurred while getting cars by clientId");
         }
     }
+
+    public Response getCarDetails(String carId)
+    {
+        try
+        {
+            List<CarDetailsDto> details = new ArrayList<>();
+            List<CarRentalsEntity> carRentals = carRentalsRepository.findByCarId(carId);
+
+            for (CarRentalsEntity carRental : carRentals)
+            {
+                Optional<ClientEntity> client = clientRepository.findById(carRental.getClientId());
+
+                if (client.isPresent())
+                {
+                    Optional<SponsorEntity> sponsor = sponsorRepository.findById(client.get().getSponsorId());
+                    String sponsorName = sponsor.map(SponsorEntity::getName).orElse(null);
+                    String sponsorPhoneNumber = sponsor.map(SponsorEntity::getPhoneNumber).orElse(null);
+
+                    CarDetailsDto carDetails = new CarDetailsDto(
+                            client.get().getName(),
+                            sponsorName,
+                            sponsorPhoneNumber,
+                            carRental.getRentalStartDate(),
+                            carRental.getRentalEndDate()
+                    );
+                    details.add(carDetails);
+                }
+            }
+
+            return new Response(details);
+        }
+        catch (Exception e)
+        {
+            log.error("An error occurred while getting car details" + e.getMessage());
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while getting car details");
+        }
+    }
+
+
 }
