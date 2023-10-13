@@ -11,11 +11,9 @@ import com.pc.global.car.renting.sponser.SponsorRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,10 +36,15 @@ public class CarRentalsServiceImpl implements CarRentalsService
             CarRentalsEntity carRentalsEntity = carRentalsRepository.save(new CarRentalsEntity(rentCarDto.getClientId(),
                     rentCarDto.getCarId(),
                     rentCarDto.getRentalStartDate(), rentCarDto.getRentalEndDate()));
-            Response updateCarResponse = carService.updateCarStatus(rentCarDto.getCarId(), true);
+            Response updateCarResponse = carService.updateCarStatus(rentCarDto.getCarId(), Boolean.TRUE);
+            Response updateClientStatus = updateClientStatus(rentCarDto.getClientId(), Boolean.TRUE);
             if (!updateCarResponse.getStatus().equals(HttpStatus.OK))
             {
                 return updateCarResponse;
+            }
+            if (!updateClientStatus.getStatus().equals(HttpStatus.OK))
+            {
+                return updateClientStatus;
             }
             else
             {
@@ -121,5 +124,24 @@ public class CarRentalsServiceImpl implements CarRentalsService
         }
     }
 
+    public Response updateClientStatus(String clientId, Boolean status)
+    {
+        Optional<ClientEntity> client = clientRepository.findById(clientId);
+
+        if (client.isPresent())
+        {
+            if (!client.get().getCurrentlyRenting())
+            {
+                return (new Response(HttpStatus.CONFLICT, "client already rented"));
+            }
+            client.get().setCurrentlyRenting(status);
+            return (new Response(clientRepository.save(client.get())));
+        }
+        else
+        {
+            return new Response(HttpStatus.NO_CONTENT, "no such client found");
+        }
+
+    }
 
 }
