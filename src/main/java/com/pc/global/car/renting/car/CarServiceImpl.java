@@ -77,7 +77,7 @@ public class CarServiceImpl implements CarService
         }
     }
 
-    public Response updateCarStatus(String carId, boolean status)
+    public Response updateCarStatus(String carId, Boolean status)
     {
         Optional<CarEntity> car = carRepository.findById(carId);
 

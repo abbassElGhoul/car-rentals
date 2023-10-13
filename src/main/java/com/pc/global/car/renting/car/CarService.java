@@ -12,7 +12,7 @@ public interface CarService
 
     Response addCar(CarDto carDto);
 
-    Response updateCarStatus(String carId, boolean status);
+    Response updateCarStatus(String carId, Boolean status);
 
     Response deleteCar(String carId);
 }
