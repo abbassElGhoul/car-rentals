@@ -83,7 +83,7 @@ public class CarServiceImpl implements CarService
 
         if (car.isPresent())
         {
-            if (!car.get().getRentingStatus())
+            if (car.get().getRentingStatus())
             {
                 return (new Response(HttpStatus.CONFLICT, "car already rented"));
             }

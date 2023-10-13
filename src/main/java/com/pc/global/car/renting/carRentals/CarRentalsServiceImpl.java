@@ -130,7 +130,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
 
         if (client.isPresent())
         {
-            if (!client.get().getCurrentlyRenting())
+            if (client.get().getCurrentlyRenting())
             {
                 return (new Response(HttpStatus.CONFLICT, "client already rented"));
             }
