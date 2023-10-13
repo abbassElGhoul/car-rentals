@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +45,28 @@ public class SponsorServiceImpl implements SponsorService
         {
             log.error(e.getMessage());
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "error while adding sponsor");
+        }
+    }
+
+    public Response getSponserById(Long sponsorId)
+    {
+        try
+        {
+            if (sponsorId != null)
+            {
+                Optional<SponsorEntity> sponsorEntity = sponsorRepository.findById(sponsorId);
+                if (sponsorEntity.isPresent())
+                {
+                    log.info("get sponsor by id sponsorEntity:{}", sponsorEntity);
+                    return new Response(sponsorEntity.get());
+                }
+            }
+            return new Response(HttpStatus.NO_CONTENT, "sponsor not found");
+
+        }
+        catch (Exception e)
+        {
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "error while fetching sponsors");
         }
     }
 }

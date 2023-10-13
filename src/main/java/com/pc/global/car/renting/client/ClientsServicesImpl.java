@@ -6,6 +6,8 @@ import com.pc.global.car.renting.client.dot.ClientDto;
 import com.pc.global.car.renting.client.dot.ClientInfoDto;
 import com.pc.global.car.renting.customeResponse.Response;
 import com.pc.global.car.renting.helper.PhotoHelper;
+import com.pc.global.car.renting.sponser.SponsorEntity;
+import com.pc.global.car.renting.sponser.SponsorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +15,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +27,45 @@ public class ClientsServicesImpl implements ClientsService
 
     private final ClientRepository clientRepository;
     private final CarRentalsService carRentalsService;
+    private final SponsorService sponsorService;
 
     @Value("${photos.path.ids}")
     private String idImagesDefaultPath;
+
+    private static ClientInfoDto getClientInfoRentingStatus(Optional<ClientEntity> client, Response carRentalsResponse, Response sponsorEntityResponse)
+    {
+        ClientInfoDto clientInfoDto = new ClientInfoDto(
+                client.get().getName(),
+                client.get().getPhoneNumber(),
+                client.get().getAddress(),
+                client.get().getFrontId(),
+                client.get().getBackId(),
+                null,
+                null,
+                false,
+                null,
+                null
+        );
+
+        if (carRentalsResponse.getStatus() == HttpStatus.OK)
+        {
+            Optional<CarRentalsEntity> carRentalsEntity = (Optional<CarRentalsEntity>) carRentalsResponse.getData();
+            if (carRentalsEntity.isPresent())
+            {
+                clientInfoDto.setCurrentlyRenting(Boolean.TRUE);
+                clientInfoDto.setRentalStartDate(carRentalsEntity.get().getRentalStartDate());
+                clientInfoDto.setRentalEndDate(carRentalsEntity.get().getRentalEndDate());
+            }
+        }
+        if (sponsorEntityResponse.getStatus() == HttpStatus.OK)
+        {
+            SponsorEntity sponsor = (SponsorEntity) sponsorEntityResponse.getData();
+            clientInfoDto.setSponsorName(sponsor.getName());
+            clientInfoDto.setSponsorPhoneNumber(sponsor.getPhoneNumber());
+        }
+
+        return clientInfoDto;
+    }
 
     public Response getClients()
     {
@@ -56,8 +96,8 @@ public class ClientsServicesImpl implements ClientsService
         try
         {
             UUID clientId = UUID.randomUUID();
-            Response storeFileResponseFrontId = PhotoHelper.storeFiles(clientId.toString(), clientDto.getFrontId(), idImagesDefaultPath, "client",true);
-            Response storeFileResponseBackId = PhotoHelper.storeFiles(clientId.toString(), clientDto.getBackId(), idImagesDefaultPath, "client",true);
+            Response storeFileResponseFrontId = PhotoHelper.storeFiles(clientId.toString(), clientDto.getFrontId(), idImagesDefaultPath, "client", true);
+            Response storeFileResponseBackId = PhotoHelper.storeFiles(clientId.toString(), clientDto.getBackId(), idImagesDefaultPath, "client", true);
             if (!storeFileResponseFrontId.getStatus().equals(HttpStatus.OK))
             {
                 return storeFileResponseFrontId;
@@ -93,6 +133,7 @@ public class ClientsServicesImpl implements ClientsService
     {
         try
         {
+            SponsorEntity sponsorEntity = new SponsorEntity();
             Optional<ClientEntity> client = clientRepository.findById(clientId);
             if (client.isEmpty())
             {
@@ -104,8 +145,9 @@ public class ClientsServicesImpl implements ClientsService
             {
                 return carRentalsResponse;
             }
+            Response getSponsorResponse = sponsorService.getSponserById(client.get().getSponsorId());
 
-            ClientInfoDto clientInfoDto = getClientInfoRentingStatus(client, carRentalsResponse);
+            ClientInfoDto clientInfoDto = getClientInfoRentingStatus(client, carRentalsResponse, getSponsorResponse);
 
             log.info("Client info retrieved for clientId: {}", clientId);
             return new Response(clientInfoDto);
@@ -115,32 +157,6 @@ public class ClientsServicesImpl implements ClientsService
             log.error("Error occurred while getting client info for clientId: {}", clientId, e);
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "Error occurred while getting client info for clientId " + clientId);
         }
-    }
-
-    private static ClientInfoDto getClientInfoRentingStatus(Optional<ClientEntity> client, Response carRentalsResponse)
-    {
-        ClientInfoDto clientInfoDto = new ClientInfoDto(
-                client.get().getName(),
-                client.get().getPhoneNumber(),
-                client.get().getAddress(),
-                client.get().getFrontId(),
-                client.get().getBackId(),
-                false,
-                null,
-                null
-        );
-
-        if (carRentalsResponse.getStatus() == HttpStatus.OK)
-        {
-            Optional<CarRentalsEntity> carRentalsEntity = (Optional<CarRentalsEntity>) carRentalsResponse.getData();
-            if (carRentalsEntity.isPresent())
-            {
-                clientInfoDto.setCurrentlyRenting(Boolean.TRUE);
-                clientInfoDto.setRentalStartDate(carRentalsEntity.get().getRentalStartDate());
-                clientInfoDto.setRentalEndDate(carRentalsEntity.get().getRentalEndDate());
-            }
-        }
-        return clientInfoDto;
     }
 
 }

@@ -10,4 +10,6 @@ public interface SponsorService
     Response getAllSponsors();
 
     Response addSponsor(SponsorDto sponsorDto);
+
+    Response getSponserById(Long sponsorId);
 }
