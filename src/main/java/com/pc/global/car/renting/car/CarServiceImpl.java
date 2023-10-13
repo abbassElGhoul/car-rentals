@@ -55,7 +55,7 @@ public class CarServiceImpl implements CarService
         try
         {
             UUID carId = UUID.randomUUID();
-            Response storeFileResponse = PhotoHelper.storeFiles(carId.toString(), carDto.getCarImage(), carImagesDefaultPath, "car",true);
+            Response storeFileResponse = PhotoHelper.storeFiles(carId.toString(), carDto.getCarImage(), carImagesDefaultPath, "car", true);
             if (!storeFileResponse.getStatus().equals(HttpStatus.OK))
             {
                 return storeFileResponse;
@@ -122,5 +122,19 @@ public class CarServiceImpl implements CarService
         }
     }
 
+    @Override
+    public Response getCar(String carId)
+    {
+        try
+        {
+            Optional<CarEntity> car = carRepository.findById(carId);
 
+            return car.map(Response::new).orElseGet(() -> new Response(HttpStatus.NO_CONTENT, "no such car found"));
+        }
+        catch (Exception e)
+        {
+            log.error(e.getMessage());
+            return new Response(HttpStatus.NO_CONTENT, "no such car found");
+        }
+    }
 }

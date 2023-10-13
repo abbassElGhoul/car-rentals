@@ -1,5 +1,7 @@
 package com.pc.global.car.renting.client;
 
+import com.pc.global.car.renting.car.CarEntity;
+import com.pc.global.car.renting.car.CarService;
 import com.pc.global.car.renting.carRentals.CarRentalsEntity;
 import com.pc.global.car.renting.carRentals.CarRentalsService;
 import com.pc.global.car.renting.client.dot.ClientDto;
@@ -28,11 +30,11 @@ public class ClientsServicesImpl implements ClientsService
     private final ClientRepository clientRepository;
     private final CarRentalsService carRentalsService;
     private final SponsorService sponsorService;
-
+    private final CarService carService;
     @Value("${photos.path.ids}")
     private String idImagesDefaultPath;
 
-    private static ClientInfoDto getClientInfoRentingStatus(Optional<ClientEntity> client, Response carRentalsResponse, Response sponsorEntityResponse)
+    private ClientInfoDto getClientInfoRentingStatus(Optional<ClientEntity> client, Response carRentalsResponse, Response sponsorEntityResponse)
     {
         ClientInfoDto clientInfoDto = new ClientInfoDto(
                 client.get().getName(),
@@ -42,22 +44,31 @@ public class ClientsServicesImpl implements ClientsService
                 client.get().getBackId(),
                 null,
                 null,
+                null,
+                null,
                 false,
                 null,
                 null
         );
 
-        if (carRentalsResponse.getStatus() == HttpStatus.OK)
+        if (carRentalsResponse.getStatus().equals(HttpStatus.OK))
         {
             Optional<CarRentalsEntity> carRentalsEntity = (Optional<CarRentalsEntity>) carRentalsResponse.getData();
             if (carRentalsEntity.isPresent())
             {
+                Response getCarResponse = carService.getCar(carRentalsEntity.get().getCarId());
+                if (getCarResponse.getStatus().equals(HttpStatus.OK))
+                {
+                    CarEntity car = (CarEntity) getCarResponse.getData();
+                    clientInfoDto.setMakeModel(car.getMakeModel());
+                    clientInfoDto.setLicensePlate(car.getLicensePlate());
+                }
                 clientInfoDto.setCurrentlyRenting(Boolean.TRUE);
                 clientInfoDto.setRentalStartDate(carRentalsEntity.get().getRentalStartDate());
                 clientInfoDto.setRentalEndDate(carRentalsEntity.get().getRentalEndDate());
             }
         }
-        if (sponsorEntityResponse.getStatus() == HttpStatus.OK)
+        if (sponsorEntityResponse.getStatus().equals(HttpStatus.OK))
         {
             SponsorEntity sponsor = (SponsorEntity) sponsorEntityResponse.getData();
             clientInfoDto.setSponsorName(sponsor.getName());
@@ -133,7 +144,6 @@ public class ClientsServicesImpl implements ClientsService
     {
         try
         {
-            SponsorEntity sponsorEntity = new SponsorEntity();
             Optional<ClientEntity> client = clientRepository.findById(clientId);
             if (client.isEmpty())
             {
@@ -146,7 +156,6 @@ public class ClientsServicesImpl implements ClientsService
                 return carRentalsResponse;
             }
             Response getSponsorResponse = sponsorService.getSponserById(client.get().getSponsorId());
-
             ClientInfoDto clientInfoDto = getClientInfoRentingStatus(client, carRentalsResponse, getSponsorResponse);
 
             log.info("Client info retrieved for clientId: {}", clientId);

@@ -18,6 +18,8 @@ public class ClientInfoDto
     private String backId;
     private String sponsorName;
     private String sponsorPhoneNumber;
+    private String licensePlate;
+    private String makeModel;
     private Boolean currentlyRenting;
     private LocalDateTime rentalStartDate;
     private LocalDateTime rentalEndDate;

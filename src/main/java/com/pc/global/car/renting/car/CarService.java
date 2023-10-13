@@ -15,4 +15,6 @@ public interface CarService
     Response updateCarStatus(String carId, boolean status);
 
     Response deleteCar(String carId);
+
+    Response getCar(String carId);
 }
