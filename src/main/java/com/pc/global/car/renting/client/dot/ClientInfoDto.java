@@ -16,6 +16,7 @@ public class ClientInfoDto
     private String clientAddress;
     private String frontId;
     private String backId;
+    private Boolean currentlyRenting;
     private LocalDateTime rentalStartDate;
     private LocalDateTime rentalEndDate;
 

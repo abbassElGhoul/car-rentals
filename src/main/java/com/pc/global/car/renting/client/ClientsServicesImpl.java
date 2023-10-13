@@ -125,6 +125,7 @@ public class ClientsServicesImpl implements ClientsService
                 client.get().getAddress(),
                 client.get().getFrontId(),
                 client.get().getBackId(),
+                false,
                 null,
                 null
         );
@@ -134,6 +135,7 @@ public class ClientsServicesImpl implements ClientsService
             Optional<CarRentalsEntity> carRentalsEntity = (Optional<CarRentalsEntity>) carRentalsResponse.getData();
             if (carRentalsEntity.isPresent())
             {
+                clientInfoDto.setCurrentlyRenting(Boolean.TRUE);
                 clientInfoDto.setRentalStartDate(carRentalsEntity.get().getRentalStartDate());
                 clientInfoDto.setRentalEndDate(carRentalsEntity.get().getRentalEndDate());
             }
