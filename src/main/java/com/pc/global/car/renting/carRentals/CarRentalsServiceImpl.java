@@ -135,6 +135,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
                 return (new Response(HttpStatus.CONFLICT, "client already rented"));
             }
             client.get().setCurrentlyRenting(status);
+            client.get().setTotalRentals(client.get().getTotalRentals() +1);
             return (new Response(clientRepository.save(client.get())));
         }
         else
