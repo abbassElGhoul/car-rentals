@@ -5,7 +5,6 @@ import com.pc.global.car.renting.carRentals.dto.CarDetailsDto;
 import com.pc.global.car.renting.carRentals.dto.RentCarDto;
 import com.pc.global.car.renting.client.ClientEntity;
 import com.pc.global.car.renting.client.ClientRepository;
-import com.pc.global.car.renting.client.ClientsService;
 import com.pc.global.car.renting.customeResponse.Response;
 import com.pc.global.car.renting.sponser.SponsorEntity;
 import com.pc.global.car.renting.sponser.SponsorRepository;
@@ -28,6 +27,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
     private final CarService carService;
     private final ClientRepository clientRepository;
     private final SponsorRepository sponsorRepository;
+
     public Response rentCar(RentCarDto rentCarDto)
     {
         try
@@ -91,6 +91,8 @@ public class CarRentalsServiceImpl implements CarRentalsService
     {
         try
         {
+            String sponsorName = "";
+            String sponsorPhoneNumber = "";
             List<CarDetailsDto> details = new ArrayList<>();
             List<CarRentalsEntity> carRentals = carRentalsRepository.findByCarId(carId);
 
@@ -100,10 +102,12 @@ public class CarRentalsServiceImpl implements CarRentalsService
 
                 if (client.isPresent())
                 {
-                    Optional<SponsorEntity> sponsor = sponsorRepository.findById(client.get().getSponsorId());
-                    String sponsorName = sponsor.map(SponsorEntity::getName).orElse(null);
-                    String sponsorPhoneNumber = sponsor.map(SponsorEntity::getPhoneNumber).orElse(null);
-
+                    if (client.get().getSponsorId() != null)
+                    {
+                        Optional<SponsorEntity> sponsor = sponsorRepository.findById(client.get().getSponsorId());
+                        sponsorName = sponsor.map(SponsorEntity::getName).orElse(null);
+                        sponsorPhoneNumber = sponsor.map(SponsorEntity::getPhoneNumber).orElse(null);
+                    }
                     CarDetailsDto carDetails = new CarDetailsDto(
                             client.get().getName(),
                             sponsorName,
