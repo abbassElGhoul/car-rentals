@@ -91,6 +91,8 @@ public class CarRentalsServiceImpl implements CarRentalsService
     {
         try
         {
+            String sponsorName = "";
+            String sponsorPhoneNumber = "";
             List<CarDetailsDto> details = new ArrayList<>();
             List<CarRentalsEntity> carRentals = carRentalsRepository.findByCarId(carId);
 
@@ -100,10 +102,12 @@ public class CarRentalsServiceImpl implements CarRentalsService
 
                 if (client.isPresent())
                 {
-                    Optional<SponsorEntity> sponsor = sponsorRepository.findById(client.get().getSponsorId());
-                    String sponsorName = sponsor.map(SponsorEntity::getName).orElse(null);
-                    String sponsorPhoneNumber = sponsor.map(SponsorEntity::getPhoneNumber).orElse(null);
-
+                    if (client.get().getSponsorId() != null)
+                    {
+                        Optional<SponsorEntity> sponsor = sponsorRepository.findById(client.get().getSponsorId());
+                        sponsorName = sponsor.map(SponsorEntity::getName).orElse(null);
+                        sponsorPhoneNumber = sponsor.map(SponsorEntity::getPhoneNumber).orElse(null);
+                    }
                     CarDetailsDto carDetails = new CarDetailsDto(
                             client.get().getName(),
                             sponsorName,
@@ -135,7 +139,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
                 return (new Response(HttpStatus.CONFLICT, "client already rented"));
             }
             client.get().setCurrentlyRenting(status);
-            client.get().setTotalRentals(client.get().getTotalRentals() +1);
+            client.get().setTotalRentals(client.get().getTotalRentals() + 1);
             return (new Response(clientRepository.save(client.get())));
         }
         else
