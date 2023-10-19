@@ -64,7 +64,7 @@ public class CarServiceImpl implements CarService
             else
             {
                 CarEntity car = new CarEntity(String.valueOf(carId), carDto.getLicensePlate(), carDto.getMakeModel(),
-                        carDto.getRentingStatus(), String.valueOf(storeFileResponse.getData()).replace("\\\\", "\\"));
+                        carDto.getRentingStatus() !=null ? carDto.getRentingStatus(): Boolean.FALSE , String.valueOf(storeFileResponse.getData()).replace("\\\\", "\\"));
 
                 return new Response(carRepository.save(car));
             }
