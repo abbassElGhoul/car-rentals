@@ -77,7 +77,7 @@ public class CarServiceImpl implements CarService
         }
     }
 
-    public Response updateCarStatus(String carId, Boolean status)
+    public Response updateCarStatus(String carId, Boolean status) throws Exception
     {
         Optional<CarEntity> car = carRepository.findById(carId);
 
@@ -85,14 +85,15 @@ public class CarServiceImpl implements CarService
         {
             if (car.get().getRentingStatus())
             {
-                return (new Response(HttpStatus.CONFLICT, "car already rented"));
+                throw  (new Exception(String.valueOf(HttpStatus.CONFLICT)));
             }
             car.get().setRentingStatus(status);
             return (new Response(carRepository.save(car.get())));
         }
         else
         {
-            return new Response(HttpStatus.NO_CONTENT, "no such car found");
+            throw  (new Exception(String.valueOf(HttpStatus.NO_CONTENT)));
+
         }
 
     }

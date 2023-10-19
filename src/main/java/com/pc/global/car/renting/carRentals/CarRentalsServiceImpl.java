@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +29,15 @@ public class CarRentalsServiceImpl implements CarRentalsService
     private final ClientRepository clientRepository;
     private final SponsorRepository sponsorRepository;
 
+    @Transactional
     public Response rentCar(RentCarDto rentCarDto)
     {
         try
         {
 
-            CarRentalsEntity carRentalsEntity = carRentalsRepository.save(new CarRentalsEntity(rentCarDto.getClientId(),
+            CarRentalsEntity carRentalsEntity = new CarRentalsEntity(rentCarDto.getClientId(),
                     rentCarDto.getCarId(),
-                    rentCarDto.getRentalStartDate(), rentCarDto.getRentalEndDate()));
+                    rentCarDto.getRentalStartDate(), rentCarDto.getRentalEndDate());
             Response updateCarResponse = carService.updateCarStatus(rentCarDto.getCarId(), Boolean.TRUE);
             Response updateClientStatus = updateClientStatus(rentCarDto.getClientId(), Boolean.TRUE);
             if (!updateCarResponse.getStatus().equals(HttpStatus.OK))
@@ -48,7 +50,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
             }
             else
             {
-                return new Response(carRentalsEntity);
+                return new Response(carRentalsRepository.save(carRentalsEntity));
             }
 
         }
@@ -119,7 +121,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
                 }
             }
 
-            return new Response(details);
+            return new Response(details.get(0));
         }
         catch (Exception e)
         {
@@ -128,7 +130,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
         }
     }
 
-    public Response updateClientStatus(String clientId, Boolean status)
+    public Response updateClientStatus(String clientId, Boolean status) throws Exception
     {
         Optional<ClientEntity> client = clientRepository.findById(clientId);
 
@@ -136,7 +138,7 @@ public class CarRentalsServiceImpl implements CarRentalsService
         {
             if (client.get().getCurrentlyRenting())
             {
-                return (new Response(HttpStatus.CONFLICT, "client already rented"));
+                throw (new Exception(String.valueOf(HttpStatus.CONFLICT)));
             }
             client.get().setCurrentlyRenting(status);
             client.get().setTotalRentals(client.get().getTotalRentals() + 1);
@@ -144,7 +146,8 @@ public class CarRentalsServiceImpl implements CarRentalsService
         }
         else
         {
-            return new Response(HttpStatus.NO_CONTENT, "no such client found");
+            throw (new Exception(String.valueOf(HttpStatus.NO_CONTENT)));
+
         }
 
     }
