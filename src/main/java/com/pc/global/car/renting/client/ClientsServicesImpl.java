@@ -122,7 +122,7 @@ public class ClientsServicesImpl implements ClientsService
                 ClientEntity client = new ClientEntity(String.valueOf(clientId), clientDto.getName(), clientDto.getPhoneNumber(),
                         String.valueOf(storeFileResponseFrontId.getData()).replace("\\\\", "\\"),
                         String.valueOf(storeFileResponseBackId.getData()).replace("\\\\", "\\"), clientDto.getTotalRentals(),
-                        clientDto.getAddress(), clientDto.getCurrentlyRenting() != null && clientDto.getCurrentlyRenting(), clientDto.getSponsorId());
+                        clientDto.getAddress(), clientDto.getCurrentlyRenting() != null && clientDto.getCurrentlyRenting(), clientDto.getSponsorId() == 0 ? null : clientDto.getSponsorId());
 
                 return new Response(clientRepository.save(client));
             }
