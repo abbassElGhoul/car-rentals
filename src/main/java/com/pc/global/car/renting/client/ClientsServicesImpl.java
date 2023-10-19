@@ -108,7 +108,7 @@ public class ClientsServicesImpl implements ClientsService
         {
             UUID clientId = UUID.randomUUID();
             Response storeFileResponseFrontId = PhotoHelper.storeFiles(clientId.toString(), clientDto.getFrontId(), idImagesDefaultPath, "client", true);
-            Response storeFileResponseBackId = !clientDto.getBackId().isEmpty() ?PhotoHelper.storeFiles(clientId.toString(), clientDto.getBackId(), idImagesDefaultPath, "client", true): new Response("ignored");
+            Response storeFileResponseBackId = !clientDto.getBackId().isEmpty() ?PhotoHelper.storeFiles(clientId.toString(), clientDto.getBackId(), idImagesDefaultPath, "client", true): new Response("");
             if (!storeFileResponseFrontId.getStatus().equals(HttpStatus.OK))
             {
                 return storeFileResponseFrontId;
