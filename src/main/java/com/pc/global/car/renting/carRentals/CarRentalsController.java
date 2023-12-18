@@ -32,6 +32,20 @@ public class CarRentalsController
     }
 
 
+    @GetMapping("get-cars-by-client-id")
+    public Response getCarsByClientId(@RequestParam String clientId)
+    {
+        try
+        {
+            return carRentalsService.getCarRentalsByUserId(clientId);
+        }
+        catch (Exception e)
+        {
+            log.error(e.getMessage());
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
     @GetMapping("get-car-details")
     public Response getCarDetails(@RequestParam String carId)
     {

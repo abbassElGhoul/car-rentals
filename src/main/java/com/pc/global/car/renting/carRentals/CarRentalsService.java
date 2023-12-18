@@ -12,4 +12,5 @@ public interface CarRentalsService
 
     Response getCarDetails(String carId);
 
+    Response getCarRentalsByUserId(String clientId);
 }

@@ -40,26 +40,25 @@ public class CarRentalsServiceImpl implements CarRentalsService
                     rentCarDto.getRentalStartDate(), rentCarDto.getRentalEndDate());
             Response updateCarResponse = carService.updateCarStatus(rentCarDto.getCarId(), Boolean.TRUE);
             Response updateClientStatus = updateClientStatus(rentCarDto.getClientId(), Boolean.TRUE);
-            if (!updateCarResponse.getStatus().equals(HttpStatus.OK))
+            if(!updateCarResponse.getStatus().equals(HttpStatus.OK))
             {
                 return updateCarResponse;
             }
-            if (!updateClientStatus.getStatus().equals(HttpStatus.OK))
+            if(!updateClientStatus.getStatus().equals(HttpStatus.OK))
             {
                 return updateClientStatus;
-            }
-            else
+            } else
             {
                 return new Response(carRentalsRepository.save(carRentalsEntity));
             }
 
         }
-        catch (DataIntegrityViolationException e)
+        catch(DataIntegrityViolationException e)
         {
             log.info(e);
             return (new Response(HttpStatus.CONFLICT, "car already rented"));
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             log.error(e);
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -72,17 +71,16 @@ public class CarRentalsServiceImpl implements CarRentalsService
         try
         {
             Optional<CarRentalsEntity> carRentalsEntity = carRentalsRepository.findByClientId(clientId);
-            if (carRentalsEntity.isPresent())
+            if(carRentalsEntity.isPresent())
             {
                 return new Response(carRentalsEntity);
-            }
-            else
+            } else
             {
                 log.info("no car rented by client:{}", clientId);
                 return new Response(HttpStatus.NO_CONTENT, "no cars rented by client: " + clientId);
             }
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             log.error(e.getMessage());
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "error occurred while getting cars by clientId");
@@ -98,13 +96,13 @@ public class CarRentalsServiceImpl implements CarRentalsService
             List<CarDetailsDto> details = new ArrayList<>();
             List<CarRentalsEntity> carRentals = carRentalsRepository.findByCarId(carId);
 
-            for (CarRentalsEntity carRental : carRentals)
+            for(CarRentalsEntity carRental : carRentals)
             {
                 Optional<ClientEntity> client = clientRepository.findById(carRental.getClientId());
 
-                if (client.isPresent())
+                if(client.isPresent())
                 {
-                    if (client.get().getSponsorId() != null)
+                    if(client.get().getSponsorId() != null)
                     {
                         Optional<SponsorEntity> sponsor = sponsorRepository.findById(client.get().getSponsorId());
                         sponsorName = sponsor.map(SponsorEntity::getName).orElse(null);
@@ -115,7 +113,8 @@ public class CarRentalsServiceImpl implements CarRentalsService
                             sponsorName,
                             sponsorPhoneNumber,
                             carRental.getRentalStartDate(),
-                            carRental.getRentalEndDate()
+                            carRental.getRentalEndDate(),
+                            carRental.getId()
                     );
                     details.add(carDetails);
                 }
@@ -123,7 +122,21 @@ public class CarRentalsServiceImpl implements CarRentalsService
 
             return new Response(details.get(0));
         }
-        catch (Exception e)
+        catch(Exception e)
+        {
+            log.error("An error occurred while getting car details" + e.getMessage());
+            return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while getting car details");
+        }
+    }
+
+    public Response getCarRentalsByUserId(String clientId)
+    {
+        try
+        {
+            Optional<CarRentalsEntity> carRentalsEntity = carRentalsRepository.findByClientId(clientId);
+            return new Response(carRentalsEntity);
+        }
+        catch(Exception e)
         {
             log.error("An error occurred while getting car details" + e.getMessage());
             return new Response(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while getting car details");
@@ -134,17 +147,16 @@ public class CarRentalsServiceImpl implements CarRentalsService
     {
         Optional<ClientEntity> client = clientRepository.findById(clientId);
 
-        if (client.isPresent())
+        if(client.isPresent())
         {
-            if (client.get().getCurrentlyRenting())
+            if(client.get().getCurrentlyRenting())
             {
                 throw (new Exception(String.valueOf(HttpStatus.CONFLICT)));
             }
             client.get().setCurrentlyRenting(status);
             client.get().setTotalRentals(client.get().getTotalRentals() + 1);
             return (new Response(clientRepository.save(client.get())));
-        }
-        else
+        } else
         {
             throw (new Exception(String.valueOf(HttpStatus.NO_CONTENT)));
 

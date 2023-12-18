@@ -16,4 +16,5 @@ public class CarDetailsDto
     private String sponsorPhoneNumber;
     private LocalDateTime rentalStartDate;
     private LocalDateTime rentalEndDate;
+    private Long carRentalId;
 }
